@@ -1,5 +1,7 @@
+from item import Item
 from room import Room
 from player import Player
+
 
 # Declare all the rooms
 
@@ -22,6 +24,15 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+item = {
+    'key': Item('Key to nowhere', '''This key does not seem to open anything in particular'''),
+
+    'junk': Item(),
+
+    'hat': Item('Hat', '''A nifty looking hat, maybe you should give it someone special'''),
+
+}
+
 
 # Link rooms together
 
@@ -33,6 +44,11 @@ room['overlook'].s_to = room['foyer']
 room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
+
+# Link rooms to items
+
+item['junk'].cur_room = room['outside']
+item['key'].cur_room = room['foyer']
 
 #
 # Main
@@ -74,9 +90,36 @@ def use_input(cmd):
             print("You can't go that direction\n")
         else:
             player.cur_room = player.cur_room.w_to
+
     elif cmd == 'help':
         print("Type in commands such as 'North' to move north.")
         print("Type 'q' to quit.\n")
+
+    elif cmd[:3] == 'get':
+        if cmd[4:] in item and item[cmd[4:]].cur_room == player.cur_room:
+            player.player_items.append(item[cmd[4:]])
+            print(f'{player.name} picked up the {cmd[4:]}!\n')
+        else:
+            print(f'{player.name} can not find {cmd[4:]} in the room.\n')
+
+    elif cmd[:4] == 'drop':
+        # if item[cmd[5:]] in player.player_items:
+        if cmd[5:] in item and item[cmd[5:]] in player.player_items:
+            player.player_items.remove(item[cmd[5:]])
+            print(f'{player.name} dropped the {cmd[5:]}.\n')
+        else:
+            print(f"{player.name} does not have {cmd[5:]} in their inventory.\n")
+
+    elif cmd == 'inv':
+        print('Inventory:')
+        for i in player.player_items:
+            print(f'-{i.name}')
+        print('')
+
+
+    else:
+        print(f'{player.name} did not understand that command.')
+        print("Type 'help' for instructions.\n")
 
 
 print(f'Welcome, {player.name}, to The Adventure Game.')
