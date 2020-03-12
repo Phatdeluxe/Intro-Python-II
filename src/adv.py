@@ -1,4 +1,7 @@
+from item import Item
 from room import Room
+from player import Player
+
 
 # Declare all the rooms
 
@@ -21,6 +24,14 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
+# items 
+key = Item('Key to nowhere', '''This key does not seem to open anything in particular''')
+junk = Item()
+hat = Item('Hat', '''A nifty looking hat, maybe you should give it someone special''')
+
+item_lookup = {'junk':junk, 'key':key, 'hat':hat}
+
+room['outside'].room_items.append(junk)
 
 # Link rooms together
 
@@ -33,12 +44,28 @@ room['narrow'].w_to = room['foyer']
 room['narrow'].n_to = room['treasure']
 room['treasure'].s_to = room['narrow']
 
+# Link rooms to items
+
+# item['junk'].cur_room = room['outside']
+# item['key'].cur_room = room['foyer']
+
+# room['foyer'].room_items.append(item['key'])
+# room['outside'].room_items.append(item['junk'])
+
 #
 # Main
 #
 
-# Make a new player object that is currently in the 'outside' room.
+def print_help():
+    print("To move type in commands such as 'n' to move north.")
+    print("To pick up items type 'get [item name]'")
+    print("To drop an item type 'drop [item name]'")
+    print("Type 'q' to quit.\n")
 
+# Make a new player object that is currently in the 'outside' room.
+name = input('Please choose a name:\n->')
+player = Player(name=name, cur_room=room['outside'])
+print('')
 # Write a loop that:
 #
 # * Prints the current room name
@@ -49,3 +76,31 @@ room['treasure'].s_to = room['narrow']
 # Print an error message if the movement isn't allowed.
 #
 # If the user enters "q", quit the game.
+
+
+
+print(f'Welcome, {player.name}, to The Adventure Game.')
+print("For instructions type 'help'\n")
+
+print(player.cur_room)
+
+while True:
+    cmd = input("->")
+    print('')
+    cmd = cmd.lower()
+
+    if cmd == 'q':
+        break
+    elif cmd == 'help':
+        print_help()
+    elif cmd in ('n', 's', 'e', 'w'):
+        player.move(cmd)
+    elif cmd[:3] == 'get':
+        player.get_item(item_lookup[cmd[4:]])
+    elif cmd[:4] == 'drop':
+        player.drop_item(item_lookup[cmd[5:]])
+    elif cmd == 'i':
+        player.check_inv()
+    else:
+        print(f"I did not understand the command '{cmd}'\n")
+    
