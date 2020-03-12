@@ -3,7 +3,6 @@ Class(es) for items in the adventure game
 '''
 
 class Item():
-    def __init__(self, name='Junk', description='Just some junk', cur_room=None):
+    def __init__(self, name='Junk', description='Just some junk'):
         self.name = name
         self.description = description
-        self.cur_room = cur_room

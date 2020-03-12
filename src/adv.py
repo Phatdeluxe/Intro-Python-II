@@ -24,15 +24,14 @@ chamber! Sadly, it has already been completely emptied by
 earlier adventurers. The only exit is to the south."""),
 }
 
-item = {
-    'key': Item('Key to nowhere', '''This key does not seem to open anything in particular'''),
+# items 
+key = Item('Key to nowhere', '''This key does not seem to open anything in particular''')
+junk = Item()
+hat = Item('Hat', '''A nifty looking hat, maybe you should give it someone special''')
 
-    'junk': Item(),
+item_lookup = {'junk':junk, 'key':key, 'hat':hat}
 
-    'hat': Item('Hat', '''A nifty looking hat, maybe you should give it someone special'''),
-
-}
-
+room['outside'].room_items.append(junk)
 
 # Link rooms together
 
@@ -47,12 +46,21 @@ room['treasure'].s_to = room['narrow']
 
 # Link rooms to items
 
-item['junk'].cur_room = room['outside']
-item['key'].cur_room = room['foyer']
+# item['junk'].cur_room = room['outside']
+# item['key'].cur_room = room['foyer']
+
+# room['foyer'].room_items.append(item['key'])
+# room['outside'].room_items.append(item['junk'])
 
 #
 # Main
 #
+
+def print_help():
+    print("To move type in commands such as 'n' to move north.")
+    print("To pick up items type 'get [item name]'")
+    print("To drop an item type 'drop [item name]'")
+    print("Type 'q' to quit.\n")
 
 # Make a new player object that is currently in the 'outside' room.
 name = input('Please choose a name:\n->')
@@ -69,74 +77,30 @@ print('')
 #
 # If the user enters "q", quit the game.
 
-def use_input(cmd):
-    if cmd == 'north':
-        if player.cur_room.n_to == None:
-            print("You can't go that direction\n")
-        else:
-            player.cur_room = player.cur_room.n_to
-    elif cmd == 'south':
-        if player.cur_room.s_to == None:
-            print("You can't go that direction\n")
-        else:
-            player.cur_room = player.cur_room.s_to
-    elif cmd == 'east':
-        if player.cur_room.e_to == None:
-            print("You can't go that direction\n")
-        else:
-            player.cur_room = player.cur_room.e_to
-    elif cmd == 'west':
-        if player.cur_room.w_to == None:
-            print("You can't go that direction\n")
-        else:
-            player.cur_room = player.cur_room.w_to
-
-    elif cmd == 'help':
-        print("Type in commands such as 'North' to move north.")
-        print("Type 'q' to quit.\n")
-
-    elif cmd[:3] == 'get':
-        if cmd[4:] in item and item[cmd[4:]].cur_room == player.cur_room:
-            player.player_items.append(item[cmd[4:]])
-            print(f'{player.name} picked up the {cmd[4:]}!\n')
-        else:
-            print(f'{player.name} can not find {cmd[4:]} in the room.\n')
-
-    elif cmd[:4] == 'drop':
-        # if item[cmd[5:]] in player.player_items:
-        if cmd[5:] in item and item[cmd[5:]] in player.player_items:
-            player.player_items.remove(item[cmd[5:]])
-            print(f'{player.name} dropped the {cmd[5:]}.\n')
-        else:
-            print(f"{player.name} does not have {cmd[5:]} in their inventory.\n")
-
-    elif cmd == 'inv':
-        print('Inventory:')
-        for i in player.player_items:
-            print(f'-{i.name}')
-        print('')
-
-
-    else:
-        print(f'{player.name} did not understand that command.')
-        print("Type 'help' for instructions.\n")
 
 
 print(f'Welcome, {player.name}, to The Adventure Game.')
 print("For instructions type 'help'\n")
 
-
+print(player.cur_room)
 
 while True:
-    print(f'Current room: {player.cur_room.name}.\n{player.cur_room.description}\n')
     cmd = input("->")
     print('')
     cmd = cmd.lower()
 
     if cmd == 'q':
         break
+    elif cmd == 'help':
+        print_help()
+    elif cmd in ('n', 's', 'e', 'w'):
+        player.move(cmd)
+    elif cmd[:3] == 'get':
+        player.get_item(item_lookup[cmd[4:]])
+    elif cmd[:4] == 'drop':
+        player.drop_item(item_lookup[cmd[5:]])
+    elif cmd == 'i':
+        player.check_inv()
     else:
-        use_input(cmd)
-
-
-
+        print(f"I did not understand the command '{cmd}'\n")
+    
